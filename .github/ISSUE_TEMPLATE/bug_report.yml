@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible game or replay problem.
+body:
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: e.g. Edge on macOS
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Mission, difficulty and seed
+      placeholder: e.g. Dossier / Lantern / seed 3 / 1x
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps and expected versus actual result
+      description: Include the clue order or junctions if known. Avoid personal information.
+    validations:
+      required: true

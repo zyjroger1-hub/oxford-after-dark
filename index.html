@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b141a" />
+    <title>Oxford After Dark — A game of pursuit, prediction and escape</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./"
+        ><span class="brand-icon">◈</span
+        ><span>OXFORD <em>AFTER DARK</em></span></a
+      >
+      <nav>
+        <button id="howBtn">How to play / 入门规则</button
+        ><button id="labBtn">Explain / Lab <span>↗</span></button
+        ><span class="local-badge">● PLAYABLE BETA</span>
+      </nav>
+    </header>
+    <main>
+      <section class="title-row">
+        <div>
+          <p class="eyebrow">A GAME OF PURSUIT, PREDICTION & ESCAPE</p>
+          <h1>
+            The city sleeps.<br class="mobile" />
+            <i>You shouldn’t.</i>
+          </h1>
+          <p class="intro">
+            Pick your clues. Lose the watch. Find your way out.
+          </p>
+        </div>
+        <div class="night-stamp">
+          <span>OXFORD, ENGLAND</span><strong>23:47</strong
+          ><span>THE NIGHT WATCH HAS BEGUN</span>
+        </div>
+      </section>
+      <section
+        id="quickRules"
+        class="quick-rules"
+        aria-label="Three simple rules"
+      >
+        <div>
+          <b>01</b><span>Click a lit road<small>点相邻路口移动</small></span>
+        </div>
+        <div>
+          <b>02</b><span>Collect 3 clues<small>收集 3 条金色线索</small></span>
+        </div>
+        <div>
+          <b>03</b><span>Reach an open exit<small>到箭头出口逃脱</small></span>
+        </div>
+      </section>
+      <div class="game-layout">
+        <section class="map-panel" aria-label="Game map">
+          <div class="map-top">
+            <span><b class="live-dot"></b> CENTRAL OXFORD</span
+            ><span id="mapMode">PLANNING YOUR ESCAPE</span>
+          </div>
+          <div id="mapWrap">
+            <svg
+              id="map"
+              viewBox="15 70 700 610"
+              role="img"
+              aria-label="Oxford street network; select a highlighted adjacent junction"
+            >
+              <defs>
+                <pattern
+                  id="grain"
+                  width="10"
+                  height="10"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <circle cx="1" cy="1" r=".4" fill="#9db7b3" opacity=".13" />
+                </pattern>
+                <radialGradient id="warm">
+                  <stop stop-color="#e2b977" stop-opacity=".22" />
+                  <stop offset="1" stop-color="#e2b977" stop-opacity="0" />
+                </radialGradient>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" /></filter>
+              </defs>
+              <rect x="0" y="0" width="900" height="900" fill="url(#grain)" />
+              <g id="mapBase"></g>
+              <g id="guidance"></g>
+              <g id="trails"></g>
+              <g id="belief"></g>
+              <g id="choices"></g>
+              <g id="objectives"></g>
+              <g id="actors"></g>
+            </svg>
+            <div class="map-compass">N<br /><span>↑</span></div>
+            <div
+              id="notice"
+              class="game-notice"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></div>
+          </div>
+          <div id="mapHint" class="map-hint">
+            Your escape starts at the teal marker.
+          </div>
+          <div class="map-bottom">
+            <div class="legend">
+              <span><b class="runner-key">●</b> YOU</span
+              ><span><b class="enemy-key">◆</b> PURSUER</span
+              ><span><b class="clue-key">◇</b> CLUE</span
+              ><span><b>⌂</b> HIDE</span><span><b>↗</b> EXIT</span>
+            </div>
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noreferrer"
+              >© OpenStreetMap contributors · ODbL</a
+            >
+          </div>
+        </section>
+        <aside id="sidebar"></aside>
+      </div>
+      <section id="replayPanel" class="replay-panel" hidden>
+        <div class="replay-head">
+          <div>
+            <p class="eyebrow">THE PURSUER’S PERSPECTIVE</p>
+            <h2>Every turn tells a story.</h2>
+          </div>
+          <button id="exportBtn">Save replay ↓</button>
+        </div>
+        <div class="scrub">
+          <button id="replayPlay">▶ Play</button
+          ><input
+            id="timeline"
+            aria-label="Replay timeline"
+            type="range"
+            min="0"
+            max="1"
+            step="1"
+            value="0"
+          /><output id="replayTime">0:00</output>
+        </div>
+        <div class="replay-explain">
+          <div>
+            <span class="mini-label">RECORDED DECISION</span>
+            <p id="decision"></p>
+            <span id="beliefNote"></span>
+          </div>
+          <div id="eventList" class="event-list"></div>
+        </div>
+        <p class="fine">
+          Solid teal: runner trail · dashed coral: pursuer trail · amber
+          circles: candidate probabilities at this moment. Positions are fully
+          revealed only in replay.
+        </p>
+      </section>
+      <footer>
+        <span>01 / A SMALL CITY. A LONG NIGHT.</span
+        ><span
+          >Fictional pursuit. Real street geometry. Game rules define access &
+          sight.</span
+        ><a href="./README.md" target="_blank">Field notes ↗</a>
+      </footer>
+    </main>
+    <dialog id="tutorial">
+      <button class="dialog-close" aria-label="Close rules">×</button>
+      <p class="eyebrow">THE 30-SECOND RULES / 入门规则</p>
+      <h2>Three rules. One way out.</h2>
+      <ol class="simple-rules">
+        <li>
+          <b>Click a lit road.</b>
+          <p>
+            You move to the next junction. While travelling, queue one next
+            turn.
+          </p>
+          <small lang="zh">点高亮的相邻路口；途中可以提前选下一次转弯。</small>
+        </li>
+        <li>
+          <b>Collect 3 gold clues.</b>
+          <p>
+            Touch the numbered diamonds. In Open Dossier, choose any 3 of 5.
+          </p>
+          <small lang="zh">抵达金色菱形自动收集；开放档案模式可 5 选 3。</small>
+        </li>
+        <li>
+          <b>Reach an open arrow.</b>
+          <p>
+            Clues unlock the exit. The watch catches you within 6m by road.
+            Corners break its sight.
+          </p>
+          <small lang="zh"
+            >线索收齐后出口解锁；追捕者沿路距离 6
+            米内可抓住你，转弯可断开视野。</small
+          >
+        </li>
+      </ol>
+      <div class="rule-tools">
+        <p><b>⌂ Hide / H</b> · shelter only · 6s stillness · 2 uses</p>
+        <p><b>◇ Decoy / D</b> · junction only · sounds after 4s · 2 uses</p>
+        <p>
+          <b>↝ Sprint / S</b> · junction only · 5s faster, footsteps heard
+          within 200m · 2 uses
+        </p>
+      </div>
+      <p class="fine">
+        Space pauses everything. Dotted route hints ignore danger. A remembered
+        enemy marker is labelled LAST SEEN. You have 6 minutes in a real night.
+        Safe practice has no capture or deadline.
+      </p>
+      <button id="rulesPractice" class="primary">
+        Try the guided practice →</button
+      ><button class="dialog-close">Back to the city</button>
+    </dialog>
+    <dialog id="lab">
+      <button id="closeLab" class="dialog-close" aria-label="Close lab">
+        ×
+      </button>
+      <p class="eyebrow">EXPLAIN / LAB</p>
+      <h2>It searches. It doesn’t know.</h2>
+      <div class="lab-copy">
+        <p>
+          <b>Greedy</b> follows the shortest route to its last observation, then
+          patrols least recently checked public objectives.
+          <b>Search</b> diffuses probability across neighbouring road junctions
+          and removes visible, empty non-shelter junctions.
+          <b>Intercept</b> uses observed heading and public goals to compare
+          arrival times at upcoming junctions; without sight it scores candidate
+          coverage and public goal junctions.
+        </p>
+        <p>
+          The AI never receives your hidden position, collected clues, click
+          queue or future route. The sensor boundary is
+          <code>Game.sensor()</code>; decision code is in
+          <code>src/ai.js</code>. The distribution approximates junction
+          occupancy; it is a heuristic, not a trained model.
+        </p>
+        <p>
+          Both characters travel at fictional game speeds: runner 4.4m/s,
+          pursuer 4.05m/s. Two optional sprints last 5s at 6.6m/s and emit
+          footsteps at the launch junction. The AI cannot distinguish them from
+          decoys by sound. Sight ranges are 62 / 78 / 90m. Visibility uses road
+          distance versus straight-line distance; buildings are visual context,
+          not a precise 3D occlusion model.
+        </p>
+        <h3>Paired simulation results</h3>
+        <div id="results">
+          Run <code>npm run experiment</code> to regenerate the local report.
+        </div>
+        <h3>Watch a local simulation</h3>
+        <p>
+          These bots use the same rules and visible information as the player.
+          This is an algorithm demonstration, not evidence of human play
+          quality.
+        </p>
+        <div class="bot-buttons">
+          <button id="watchCourier">Watch Courier</button
+          ><button id="watchCautious">Watch Cautious</button>
+        </div>
+        <p class="fine">
+          Watching starts a new run at the currently selected difficulty and
+          seed. You can take control at any time.
+        </p>
+        <p>
+          <a href="./DESIGN_NOTES.md" target="_blank">Design notes ↗</a> ·
+          <a href="./LEARNING_GUIDE_ZH.md" target="_blank">中文学习指南 ↗</a> ·
+          <a id="reportLink" href="./RESULTS.md" target="_blank"
+            >Full experiment report ↗</a
+          >
+        </p>
+      </div>
+    </dialog>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

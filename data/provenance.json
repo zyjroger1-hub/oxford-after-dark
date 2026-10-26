@@ -1,0 +1,11 @@
+{
+  "source": "https://www.openstreetmap.org/api/0.6/map?bbox=-1.2615,51.7504,-1.2518,51.7568",
+  "retrievedAt": "2026-10-26T16:51:19.341225+00:00",
+  "method": "Official OSM bbox API, downloaded once; raw XML retained. Overpass first returned capacity error.",
+  "bbox": [
+    -1.2615,
+    51.7504,
+    -1.2518,
+    51.7568
+  ]
+}
